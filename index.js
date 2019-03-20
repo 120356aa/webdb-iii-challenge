@@ -8,7 +8,7 @@ const db = knex(dbConfig.development);
 const server = express();
 
 server.use(helmet());
-server.unsubscribe(express.json());
+server.use(express.json());
 
 // GET all cohorts
 server.get('/api/cohorts', async (req, res) => {
@@ -34,10 +34,25 @@ server.get('/api/cohorts/:id', async (req, res) => {
 
 // GET all students for cohort id
 server.get('/api/cohorts/:id/students', async (req, res) => {
+  const { id } = req.params;
+  
   try {
+    const cohort = await db('cohorts')
+      .where({ cohort_id: id})
+      .innerJoin('students', 'cohorts.id', '=', 'students.cohort_id');
+      
+    const findCohort = await db('cohorts')
+      .where({ id })
+      .first();
 
+    if (findCohort) {
+      res.status(200).json(cohort);
+    } else {
+      res.status(404).json({message: 'Cohort not found'});
+    }
   } catch (err) {
-    
+    console.log(err);
+    res.status(500).json(err);
   }
 });
 
