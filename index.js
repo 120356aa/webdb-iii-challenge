@@ -80,9 +80,17 @@ server.put('/api/cohorts/:id', async (req, res) => {
 // DELETE cohort
 server.delete('/api/cohorts/:id', async (req, res) => {
   try {
+    const del = await db('cohorts')
+      .where({ id: req.params.id })
+      .del();
 
+    if (del > 0) {
+      res.status(204).end();
+    } else {
+      res.status(404).json({message: 'Cohort not found'})
+    }
   } catch (err) {
-    
+    res.status(500).json(err);
   }
 });
 
