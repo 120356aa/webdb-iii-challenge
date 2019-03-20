@@ -49,6 +49,7 @@ server.post('/api/cohorts', async (req, res) => {
     const cohort = await db('cohorts')
       .where({ id })
       .first();
+
     res.status(201).json(cohort);
   } catch (err) {
     res.status(500).json(err);
@@ -58,9 +59,21 @@ server.post('/api/cohorts', async (req, res) => {
 // PUT cohort
 server.put('/api/cohorts/:id', async (req, res) => {
   try {
+    const update = await db('cohorts')
+      .where({ id: req.params.id })
+      .update(req.body);
 
+    if (update > 0) {
+      const cohort = await db('cohorts')
+        .where({ id: req.params.id })
+        .first();
+      
+      res.status(200).json(cohort);
+    } else {
+      res.status(404).json({message: 'Record not found'});
+    }
   } catch (err) {
-    
+    res.status(500).json(err);
   }
 });
 
